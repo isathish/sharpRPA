@@ -68,7 +68,8 @@ namespace sharpRPA.UI.Forms
             sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 
-            bgwRunScript.ReportProgress(0, new object[] { 0, "Bot Engine Started: " + DateTime.Now.ToString() });
+            //bgwRunScript.ReportProgress(0, new object[] { 0, "Bot Engine Started: " + DateTime.Now.ToString() });
+            bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = 0, UpdateText = "Bot Engine Started: " + DateTime.Now.ToString() });
 
             Core.Script.Script automationScript;
 
@@ -105,21 +106,46 @@ namespace sharpRPA.UI.Forms
             //get command
             Core.AutomationCommands.ScriptCommand parentCommand = command.ScriptCommand;
 
+            //handle pause request
+            if (parentCommand.PauseBeforeExeucution)
+            {
+                bgwRunScript.ReportProgress(0, new PauseRequest());
+                isPaused = true;
+            }
+
             //handle pause
+            bool isFirstWait = true;
             while (isPaused)
             {
+                //only show pause first loop
+                if (isFirstWait)
+                {
+                    bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = parentCommand.LineNumber, UpdateText = "Paused on Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
+                    bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = parentCommand.LineNumber, UpdateText = "[Please select 'Resume' when ready]" });
+                    isFirstWait = false;
+                }
+
+                //wait
                 System.Threading.Thread.Sleep(2000);
             }
+
+
+
+
+
 
             //bypass comments
             if (parentCommand is Core.AutomationCommands.CommentCommand || parentCommand.IsCommented)
             {
-                bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Skipping Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
+               // bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Skipping Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
+                bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = parentCommand.LineNumber, UpdateText = "Skipping Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
                 return;
             }
 
             //update listbox
-            bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Running Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
+            //bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Running Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
+            bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = parentCommand.LineNumber, UpdateText = "Running Line " + parentCommand.LineNumber + ": " + parentCommand.GetDisplayValue() });
+
 
             //handle any errors
             try
@@ -144,8 +170,11 @@ namespace sharpRPA.UI.Forms
                     switch (errorHandling.v_ErrorHandlingAction)
                     {
                         case "Continue Processing":
-                            bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Error Occured at Line " + parentCommand.LineNumber + ":" + ex.ToString() });
-                            bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Continuing Per Error Handling" });
+                            //bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Error Occured at Line " + parentCommand.LineNumber + ":" + ex.ToString() });
+                            //bgwRunScript.ReportProgress(0, new object[] { parentCommand.LineNumber, "Continuing Per Error Handling" });
+                            bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = parentCommand.LineNumber, UpdateText = "Error Occured at Line " + parentCommand.LineNumber + ":" + ex.ToString() });
+                            bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber = parentCommand.LineNumber, UpdateText = "Continuing Per Error Handling" });
+
                             break;
 
                         default:
@@ -161,12 +190,31 @@ namespace sharpRPA.UI.Forms
 
         private void bgwRunScript_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            object[] progressUpdate = (object[])e.UserState;
 
-            if ((callBackForm != null) && (progressUpdate[0] != null))
-                callBackForm.DebugLine = (int)progressUpdate[0];
+            if (e.UserState is ProgressUpdate)
+            {
+                ProgressUpdate currentProgress = (ProgressUpdate)e.UserState;
+                callBackForm.DebugLine = currentProgress.LineNumber;
+                AddStatus(currentProgress.UpdateText);
+            }
+            else if (e.UserState is PauseRequest)
+            {
+                lstSteppingCommands.Items.Add("[Script Requested Pause]");
+                uiBtnPause.Image = Properties.Resources.restart;
+                uiBtnPause.DisplayText = "Resume";
+            }
 
-            lstSteppingCommands.Items.Add((string)progressUpdate[1] + "..");
+            //object[] progressUpdate = (object[])e.UserState;
+
+            //if ((callBackForm != null) && (progressUpdate[0] != null))
+            //    callBackForm.DebugLine = (int)progressUpdate[0];
+
+
+        }
+
+        private void AddStatus(string text)
+        {
+            lstSteppingCommands.Items.Add(text + "..");
             lstSteppingCommands.SelectedIndex = lstSteppingCommands.Items.Count - 1;
         }
 
@@ -239,7 +287,8 @@ namespace sharpRPA.UI.Forms
 
         public void ReportProgress(string progressToReport)
         {
-            bgwRunScript.ReportProgress(0, new object[] { null, "Command Report: " + progressToReport });
+            //bgwRunScript.ReportProgress(0, new object[] { null, "Command Report: " + progressToReport });
+            bgwRunScript.ReportProgress(0, new ProgressUpdate() { LineNumber =  0, UpdateText = "Command Report: " + progressToReport });
         }
 
         #endregion BackgroundWorker
@@ -306,4 +355,14 @@ namespace sharpRPA.UI.Forms
             CleanUpMemory();
         }
     }
+
+   public class ProgressUpdate
+    {
+        public int LineNumber { get; set; }
+        public string UpdateText { get; set; }
+    }
+
+    public class PauseRequest { }
+
+
 }
