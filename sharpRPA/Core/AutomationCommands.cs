@@ -107,7 +107,7 @@ namespace sharpRPA.Core.AutomationCommands
 
         public ScriptCommand()
         {
-            this.DisplayForeColor = System.Drawing.Color.Black;
+            this.DisplayForeColor = System.Drawing.Color.SteelBlue;
             this.CommandEnabled = false;
             this.DefaultPause = 250;
             this.IsCommented = false;

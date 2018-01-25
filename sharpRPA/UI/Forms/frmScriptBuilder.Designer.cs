@@ -53,6 +53,7 @@
             this.lblMainLogo = new System.Windows.Forms.Label();
             this.pnlStatus = new System.Windows.Forms.Panel();
             this.pnlControlContainer = new System.Windows.Forms.Panel();
+            this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.uiGroupBox3 = new sharpRPA.UI.CustomControls.UIGroupBox();
@@ -74,7 +75,6 @@
             this.pauseBeforeExecutionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copySelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label7 = new System.Windows.Forms.Label();
             this.tlpControls.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -321,7 +321,7 @@
             this.lstScriptActions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.commandColumn});
             this.lstScriptActions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstScriptActions.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstScriptActions.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstScriptActions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.lstScriptActions.Location = new System.Drawing.Point(0, 0);
             this.lstScriptActions.Name = "lstScriptActions";
@@ -420,6 +420,15 @@
             this.pnlControlContainer.Size = new System.Drawing.Size(1029, 82);
             this.pnlControlContainer.TabIndex = 7;
             this.pnlControlContainer.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlControlContainer_Paint);
+            // 
+            // label7
+            // 
+            this.label7.BackColor = System.Drawing.Color.Gainsboro;
+            this.label7.ForeColor = System.Drawing.Color.DimGray;
+            this.label7.Location = new System.Drawing.Point(510, 5);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(2, 70);
+            this.label7.TabIndex = 21;
             // 
             // label6
             // 
@@ -686,15 +695,6 @@
             this.pasteSelectedToolStripMenuItem.Size = new System.Drawing.Size(232, 24);
             this.pasteSelectedToolStripMenuItem.Text = "Paste Selected Action";
             this.pasteSelectedToolStripMenuItem.Click += new System.EventHandler(this.pasteSelectedToolStripMenuItem_Click);
-            // 
-            // label7
-            // 
-            this.label7.BackColor = System.Drawing.Color.Gainsboro;
-            this.label7.ForeColor = System.Drawing.Color.DimGray;
-            this.label7.Location = new System.Drawing.Point(510, 5);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(2, 70);
-            this.label7.TabIndex = 21;
             // 
             // frmScriptBuilder
             // 
