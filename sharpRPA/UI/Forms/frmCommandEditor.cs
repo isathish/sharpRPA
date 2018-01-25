@@ -444,6 +444,13 @@ namespace sharpRPA.UI.Forms
                         if (!string.IsNullOrEmpty(scriptVariable.variableName))
                             InputControl.Items.Add(scriptVariable.variableName);
                     }
+
+                    if (scriptVariables.Count == 0)
+                    {
+                        MessageBox.Show("The selected command requires a user variable but no user variables were found! To create a user variable, please select the 'Variables' button on the main form to define a new variable!", "No User-Defined Variables Found");
+                    }
+
+
                 }
                 else if ((inputField.Name == "v_WebActionParameterTable") || (inputField.Name == "v_IfActionParameterTable"))
                 {

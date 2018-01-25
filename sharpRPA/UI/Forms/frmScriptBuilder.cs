@@ -1235,6 +1235,10 @@ namespace sharpRPA.UI.Forms
                 return;
             }
 
+
+
+
+
             AddNewCommand(tvCommands.SelectedNode.Parent.Text + " - " + tvCommands.SelectedNode.Text);
 
         }
