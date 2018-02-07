@@ -1049,8 +1049,12 @@ namespace sharpRPA.UI.Forms
         private void uiBtnRunScript_Click(object sender, EventArgs e)
         {
 
+
+
+
             if (ScriptFilePath == null)
             {
+                MessageBox.Show("You must first save your script before you can run it!", "Please Save Script");
                 return;
             }
 
