@@ -570,6 +570,13 @@ namespace sharpRPA.Core.AutomationCommands
         [Attributes.PropertyAttributes.PropertyDescription("Please Enter the instance name")]
         public string v_InstanceName { get; set; }
 
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Please Select a Window State")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Normal")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Maximize")]
+
+        public string v_BrowserWindowOption { get; set; }
+
         public SeleniumBrowserCreateCommand()
         {
             this.CommandName = "SeleniumBrowserCreateCommand";
@@ -594,6 +601,20 @@ namespace sharpRPA.Core.AutomationCommands
             }
 
             sendingInstance.appInstances.Add(v_InstanceName, newSeleniumSession);
+
+            //handle window type on startup - https://github.com/saucepleez/sharpRPA/issues/22
+            switch (v_BrowserWindowOption)
+            {
+                case "Maximize":
+                    newSeleniumSession.Manage().Window.Maximize();
+                    break;
+                case "Normal":
+                case "":
+                default:
+                    break;
+            }
+
+
         }
 
         public override string GetDisplayValue()
