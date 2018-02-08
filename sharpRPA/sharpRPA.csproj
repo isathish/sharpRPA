@@ -322,6 +322,7 @@
     <Content Include="Script Sample Files\Calculator Automation Sample.xml" />
     <Content Include="Script Sample Files\Command Prompt Automation Sample.xml" />
     <Content Include="Script Sample Files\If Conditional Sample.xml" />
+    <Content Include="Script Sample Files\Selenium Automation Sample.xml" />
     <Content Include="Script Sample Files\String Split Sample.xml" />
     <Content Include="Script Sample Files\Web Automation Sample.xml" />
     <None Include="Resources\excel16.png" />
