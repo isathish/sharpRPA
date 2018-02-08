@@ -862,6 +862,9 @@ namespace sharpRPA.Core.AutomationCommands
         {
             object browserObject = null;
             var sendingInstance = (UI.Forms.frmScriptEngine)sender;
+            //convert to user variable -- https://github.com/saucepleez/sharpRPA/issues/22
+            v_SeleniumSearchParameter = v_SeleniumSearchParameter.ConvertToUserVariable(sender);
+
             if (sendingInstance.appInstances.TryGetValue(v_InstanceName, out browserObject))
             {
                 var seleniumInstance = (OpenQA.Selenium.Chrome.ChromeDriver)browserObject;
@@ -899,8 +902,11 @@ namespace sharpRPA.Core.AutomationCommands
                 }
                 else
                 {
+
                     element = FindElement(seleniumInstance);
                 }
+
+
 
                 switch (v_SeleniumSearchType)
                 {
@@ -979,7 +985,9 @@ namespace sharpRPA.Core.AutomationCommands
                             }
                             else
                             {
-                                element.SendKeys(chunkedString);
+                                //convert to user variable - https://github.com/saucepleez/sharpRPA/issues/22
+                                var convertedChunk = chunkedString.ConvertToUserVariable(sender);
+                                element.SendKeys(convertedChunk);
                             }
                         }
 
