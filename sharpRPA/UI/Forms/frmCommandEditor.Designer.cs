@@ -31,14 +31,14 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmCommandEditor));
             this.cboSelectedCommand = new System.Windows.Forms.ComboBox();
             this.flw_InputVariables = new System.Windows.Forms.FlowLayoutPanel();
-            this.uiBtnCancel = new sharpRPA.UI.CustomControls.UIPictureButton();
-            this.uiBtnAdd = new sharpRPA.UI.CustomControls.UIPictureButton();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            ((System.ComponentModel.ISupportInitialize)(this.uiBtnCancel)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.uiBtnAdd)).BeginInit();
+            this.uiBtnAdd = new sharpRPA.UI.CustomControls.UIPictureButton();
+            this.uiBtnCancel = new sharpRPA.UI.CustomControls.UIPictureButton();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.uiBtnAdd)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uiBtnCancel)).BeginInit();
             this.SuspendLayout();
             // 
             // cboSelectedCommand
@@ -71,40 +71,6 @@
             this.flw_InputVariables.TabIndex = 3;
             this.flw_InputVariables.WrapContents = false;
             // 
-            // uiBtnCancel
-            // 
-            this.uiBtnCancel.BackColor = System.Drawing.Color.Transparent;
-            this.uiBtnCancel.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.uiBtnCancel.DisplayText = "Cancel";
-            this.uiBtnCancel.DisplayTextBrush = System.Drawing.Color.White;
-            this.uiBtnCancel.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.uiBtnCancel.Image = ((System.Drawing.Image)(resources.GetObject("uiBtnCancel.Image")));
-            this.uiBtnCancel.IsMouseOver = false;
-            this.uiBtnCancel.Location = new System.Drawing.Point(106, 5);
-            this.uiBtnCancel.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.uiBtnCancel.Name = "uiBtnCancel";
-            this.uiBtnCancel.Size = new System.Drawing.Size(88, 49);
-            this.uiBtnCancel.TabIndex = 15;
-            this.uiBtnCancel.TabStop = false;
-            this.uiBtnCancel.Click += new System.EventHandler(this.uiBtnCancel_Click);
-            // 
-            // uiBtnAdd
-            // 
-            this.uiBtnAdd.BackColor = System.Drawing.Color.Transparent;
-            this.uiBtnAdd.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.uiBtnAdd.DisplayText = "Ok";
-            this.uiBtnAdd.DisplayTextBrush = System.Drawing.Color.White;
-            this.uiBtnAdd.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.uiBtnAdd.Image = ((System.Drawing.Image)(resources.GetObject("uiBtnAdd.Image")));
-            this.uiBtnAdd.IsMouseOver = false;
-            this.uiBtnAdd.Location = new System.Drawing.Point(6, 5);
-            this.uiBtnAdd.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.uiBtnAdd.Name = "uiBtnAdd";
-            this.uiBtnAdd.Size = new System.Drawing.Size(88, 49);
-            this.uiBtnAdd.TabIndex = 14;
-            this.uiBtnAdd.TabStop = false;
-            this.uiBtnAdd.Click += new System.EventHandler(this.uiBtnAdd_Click);
-            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.BackColor = System.Drawing.Color.White;
@@ -135,6 +101,40 @@
             this.flowLayoutPanel1.Size = new System.Drawing.Size(556, 57);
             this.flowLayoutPanel1.TabIndex = 4;
             // 
+            // uiBtnAdd
+            // 
+            this.uiBtnAdd.BackColor = System.Drawing.Color.Transparent;
+            this.uiBtnAdd.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.uiBtnAdd.DisplayText = "Ok";
+            this.uiBtnAdd.DisplayTextBrush = System.Drawing.Color.White;
+            this.uiBtnAdd.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.uiBtnAdd.Image = ((System.Drawing.Image)(resources.GetObject("uiBtnAdd.Image")));
+            this.uiBtnAdd.IsMouseOver = false;
+            this.uiBtnAdd.Location = new System.Drawing.Point(6, 5);
+            this.uiBtnAdd.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            this.uiBtnAdd.Name = "uiBtnAdd";
+            this.uiBtnAdd.Size = new System.Drawing.Size(88, 49);
+            this.uiBtnAdd.TabIndex = 14;
+            this.uiBtnAdd.TabStop = false;
+            this.uiBtnAdd.Click += new System.EventHandler(this.uiBtnAdd_Click);
+            // 
+            // uiBtnCancel
+            // 
+            this.uiBtnCancel.BackColor = System.Drawing.Color.Transparent;
+            this.uiBtnCancel.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.uiBtnCancel.DisplayText = "Cancel";
+            this.uiBtnCancel.DisplayTextBrush = System.Drawing.Color.White;
+            this.uiBtnCancel.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.uiBtnCancel.Image = ((System.Drawing.Image)(resources.GetObject("uiBtnCancel.Image")));
+            this.uiBtnCancel.IsMouseOver = false;
+            this.uiBtnCancel.Location = new System.Drawing.Point(106, 5);
+            this.uiBtnCancel.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            this.uiBtnCancel.Name = "uiBtnCancel";
+            this.uiBtnCancel.Size = new System.Drawing.Size(88, 49);
+            this.uiBtnCancel.TabIndex = 15;
+            this.uiBtnCancel.TabStop = false;
+            this.uiBtnCancel.Click += new System.EventHandler(this.uiBtnCancel_Click);
+            // 
             // frmCommandEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 22F);
@@ -151,10 +151,10 @@
             this.Text = "Add New Command";
             this.Load += new System.EventHandler(this.frmNewCommand_Load);
             this.Shown += new System.EventHandler(this.frmCommandEditor_Shown);
-            ((System.ComponentModel.ISupportInitialize)(this.uiBtnCancel)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.uiBtnAdd)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.uiBtnAdd)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uiBtnCancel)).EndInit();
             this.ResumeLayout(false);
 
         }

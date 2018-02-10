@@ -107,6 +107,28 @@ namespace sharpRPA.Core
             systemVariableList.Add(new Core.Script.ScriptVariable { variableName = "PC.DomainName", variableValue = Environment.UserDomainName });
             return systemVariableList;
         }
+
+        public static string ImageToBase64(Image image)
+        {
+
+            using (MemoryStream m = new MemoryStream())
+            {
+                image.Save(m, System.Drawing.Imaging.ImageFormat.Bmp);
+                byte[] imageBytes = m.ToArray();
+                var base64String = Convert.ToBase64String(imageBytes);
+                return base64String;
+            }
+
+        }
+        public static Image Base64ToImage(string base64String)
+        {
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+            MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+            ms.Write(imageBytes, 0, imageBytes.Length);
+            System.Drawing.Image image = System.Drawing.Image.FromStream(ms, true);
+            return image;
+        }
+
     }
 
     public static class ExtensionMethods

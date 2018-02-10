@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using sharpRPA.Core.AutomationCommands.Attributes;
+using System.IO;
 
 namespace sharpRPA.UI.Forms
 {
@@ -209,6 +210,30 @@ namespace sharpRPA.UI.Forms
                                 variableInsertion.Tag = inputControl;
                                 variableInsertion.Click += ShowFileSelector;
                                 flw_InputVariables.Controls.Add(variableInsertion);
+                                break;
+
+                            case Core.AutomationCommands.Attributes.PropertyAttributes.PropertyUIHelper.UIAdditionalHelperType.ShowImageRecogitionHelper:
+                                //show file selector
+                                variableInsertion.CommandImage = UI.Images.GetUIImage("OCRCommand");
+                                variableInsertion.CommandDisplay = "Capture Reference Image";
+                                variableInsertion.ForeColor = Color.Black;
+                                variableInsertion.Tag = inputControl;
+                                variableInsertion.Click += ShowImageCapture;
+                                flw_InputVariables.Controls.Add(variableInsertion);
+
+
+                                sharpRPA.UI.CustomControls.CommandItemControl testRun = new sharpRPA.UI.CustomControls.CommandItemControl();
+                                testRun.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
+                                testRun.ForeColor = Color.Black;
+
+                                testRun.CommandImage = UI.Images.GetUIImage("OCRCommand");
+                                testRun.CommandDisplay = "Run Image Recognition Test";
+                                testRun.ForeColor = Color.Black;
+                                testRun.Tag = inputControl;
+                                testRun.Click += RunImageCapture;
+                                flw_InputVariables.Controls.Add(testRun);
+
+
                                 break;
 
                             default:
@@ -557,6 +582,17 @@ namespace sharpRPA.UI.Forms
                     InputControl.DataSource = cmd.v_WebSearchTable;
                     InputControl.Font = new Font("Segoe UI", 8, FontStyle.Regular);
                 }
+                else if(inputField.Name == "v_ImageCapture")
+                {
+
+                    InputControl = new PictureBox();
+                    InputControl.Name = inputField.Name;
+                    InputControl.Width = 200;
+                    InputControl.Height = 150;
+                    InputControl.BackColor = Color.LightGray;
+                    InputControl.SizeMode = PictureBoxSizeMode.AutoSize;
+
+                }
                 else
                 {
                     //variable is simply a standard variable
@@ -570,7 +606,19 @@ namespace sharpRPA.UI.Forms
                 InputControl.Name = inputField.Name;
             }
 
-            if (!(InputControl is DataGridView)) //dgv already has binding set
+            if ((InputControl is PictureBox) && (currentCommand is sharpRPA.Core.AutomationCommands.ImageRecognitionCommand))
+            {
+                var cmd = (Core.AutomationCommands.ImageRecognitionCommand)currentCommand;
+
+                if ((cmd.v_ImageCapture != "") && (cmd.v_ImageCapture != null))
+                {
+                    InputControl.Image = Core.Common.Base64ToImage(cmd.v_ImageCapture);
+                }
+
+                InputControl.DataBindings.Add("Text", currentCommand, inputField.Name, false, DataSourceUpdateMode.OnPropertyChanged);
+
+            }
+            else if (!(InputControl is DataGridView)) //dgv already has binding set
             {
                 InputControl.Font = new Font("Segoe UI", 12, FontStyle.Regular);
                 InputControl.DataBindings.Add("Text", currentCommand, inputField.Name, false, DataSourceUpdateMode.OnPropertyChanged);
@@ -862,6 +910,13 @@ namespace sharpRPA.UI.Forms
                 frm.WindowState = FormWindowState.Normal;
             }
         }
+        public static void HideAllForms()
+        {
+            foreach (Form frm in Application.OpenForms)
+            {
+                frm.WindowState = FormWindowState.Minimized;
+            }
+        }
         private void ShowMouseCaptureForm(object sender, EventArgs e)
         {
             sharpRPA.UI.Forms.Supplemental.frmShowCursorPosition frmShowCursorPos = new sharpRPA.UI.Forms.Supplemental.frmShowCursorPosition();
@@ -923,6 +978,66 @@ namespace sharpRPA.UI.Forms
                 targetTextbox.Text = ofd.FileName;
             }
         }
+        private void ShowImageCapture(object sender, EventArgs e)
+        {
+
+            HideAllForms();
+
+            var userAcceptance = MessageBox.Show(this, "The image capture process will now begin and display a screenshot of the current desktop in a custom full-screen window.  You may stop the capture process at any time by pressing the 'ESC' key, or selecting 'Close' at the top left. Simply create the image by clicking once to start the rectangle and clicking again to finish. The image will be cropped to the boundary within the red rectangle. Shall we proceed?", "Image Capture", MessageBoxButtons.YesNo);
+
+            if (userAcceptance == DialogResult.Yes)
+            {
+
+            Supplement_Forms.frmImageCapture imageCaptureForm = new Supplement_Forms.frmImageCapture();
+
+            if (imageCaptureForm.ShowDialog() == DialogResult.OK)
+            {
+                CustomControls.CommandItemControl inputBox = (CustomControls.CommandItemControl)sender;
+                PictureBox targetPictureBox = (PictureBox)inputBox.Tag;
+                targetPictureBox.Image = imageCaptureForm.userSelectedBitmap;
+                targetPictureBox.Text = Core.Common.ImageToBase64(imageCaptureForm.userSelectedBitmap);
+            }
+
+            }
+
+            ShowAllForms();
+        }
+        private void RunImageCapture(object sender, EventArgs e)
+        {
+
+            //get input control
+            CustomControls.CommandItemControl inputBox = (CustomControls.CommandItemControl)sender;
+            PictureBox targetPictureBox = (PictureBox)inputBox.Tag;
+            string imageSource = targetPictureBox.Text;
+
+            if (string.IsNullOrEmpty(imageSource))
+            {
+                MessageBox.Show("Please capture an image before attempting to test!");
+                return;
+            }
+
+            //hide all
+            HideAllForms();
+
+
+
+            try
+            {
+                //run image recognition
+                Core.AutomationCommands.ImageRecognitionCommand imageRecognitionCommand = new Core.AutomationCommands.ImageRecognitionCommand();
+                imageRecognitionCommand.v_ImageCapture = imageSource;
+                imageRecognitionCommand.RunCommand(this);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.ToString());
+            }
+            //show all forms
+            ShowAllForms();
+
+
+        }
+
 
         #endregion Assitance Forms Events
     }

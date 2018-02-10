@@ -257,6 +257,7 @@ namespace sharpRPA.UI.CustomControls
         public Font TitleFont { get; set; }
         public Color TitleForeColor { get; set; }
     }
+
     public class UIFlowLayoutPanel : FlowLayoutPanel
     {
         public UIFlowLayoutPanel()
@@ -264,6 +265,7 @@ namespace sharpRPA.UI.CustomControls
             this.DoubleBuffered = true;
         }
     }
+
 
     #endregion Custom UI Components
 }
@@ -322,6 +324,7 @@ namespace sharpRPA.UI
             uiImages.Add("ElseCommand", sharpRPA.Properties.Resources.flag3);
             uiImages.Add("ScreenshotCommand", sharpRPA.Properties.Resources.photo_camera);
             uiImages.Add("OCRCommand", sharpRPA.Properties.Resources.photo_camera);
+            uiImages.Add("ImageRecognitionCommand", sharpRPA.Properties.Resources.photo_camera);
             uiImages.Add("HTTPRequestCommand", sharpRPA.Properties.Resources.web);
             uiImages.Add("HTTPQueryResultCommand", sharpRPA.Properties.Resources.search);
             return uiImages;

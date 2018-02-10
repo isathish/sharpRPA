@@ -70,7 +70,8 @@ namespace sharpRPA.Core.AutomationCommands.Attributes.PropertyAttributes
         public enum UIAdditionalHelperType
         {
             ShowVariableHelper,
-            ShowFileSelectionHelper
+            ShowFileSelectionHelper,
+            ShowImageRecogitionHelper
         }
     }
     [System.AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]

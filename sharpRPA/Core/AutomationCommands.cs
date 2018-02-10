@@ -26,6 +26,7 @@ using System.Net.Mail;
 using sharpRPA.Core;
 using System.Net;
 using System.IO;
+using System.Drawing;
 
 namespace sharpRPA.Core.AutomationCommands
 {
@@ -82,6 +83,7 @@ namespace sharpRPA.Core.AutomationCommands
     [XmlInclude(typeof(OCRCommand))]
     [XmlInclude(typeof(HTTPRequestCommand))]
     [XmlInclude(typeof(HTTPQueryResultCommand))]
+    [XmlInclude(typeof(ImageRecognitionCommand))]
     [Serializable]
     public abstract class ScriptCommand
     {
@@ -2695,6 +2697,239 @@ namespace sharpRPA.Core.AutomationCommands
         }
     }
 
+    [Serializable]
+    [Attributes.ClassAttributes.Group("Image Commands")]
+    [Attributes.ClassAttributes.Description("This command attempts to find an existing image on screen.")]
+    [Attributes.ClassAttributes.ImplementationDescription("TBD")]
+    public class ImageRecognitionCommand : ScriptCommand
+    {
+
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Capture the search image")]
+        [Attributes.PropertyAttributes.PropertyUIHelper(Attributes.PropertyAttributes.PropertyUIHelper.UIAdditionalHelperType.ShowImageRecogitionHelper)]
+        public string v_ImageCapture { get; set; }
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Offset X Coordinate - Optional")]
+        public int v_xOffsetAdjustment { get; set; }
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Offset Y Coordinate - Optional")]
+        public int v_YOffsetAdjustment { get; set; }
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Please indicate mouse click type if required")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("None")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Down")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Down")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Down")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Up")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Up")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Up")]
+        public string v_MouseClick { get; set; }
+        public ImageRecognitionCommand()
+        {
+            this.CommandName = "ImageRecognitionCommand";
+            this.SelectionName = "Image - Image Recognition";
+            this.CommandEnabled = true;
+
+            v_xOffsetAdjustment = 0;
+            v_YOffsetAdjustment = 0;
+        }
+        public override void RunCommand(object sender)
+        {
+            bool testMode = false;
+            if (sender is UI.Forms.frmCommandEditor)
+            {
+                testMode = true;
+            }
+
+
+            //user image to bitmap
+            Bitmap userImage = new Bitmap(Core.Common.Base64ToImage(v_ImageCapture));
+
+            //take screenshot
+            Size shotSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
+            Point upperScreenPoint = new Point(0, 0);
+            Point upperDestinationPoint = new Point(0, 0);
+            Bitmap desktopImage = new Bitmap(shotSize.Width, shotSize.Height);
+            Graphics graphics = Graphics.FromImage(desktopImage);
+            graphics.CopyFromScreen(upperScreenPoint, upperDestinationPoint, shotSize);
+
+            //create desktopOutput file
+            Bitmap desktopOutput = new Bitmap(desktopImage);
+
+            //get graphics for drawing on output file
+            Graphics screenShotUpdate = Graphics.FromImage(desktopOutput);
+
+            //declare maximum boundaries
+            int userImageMaxWidth = userImage.Width - 1;
+            int userImageMaxHeight = userImage.Height - 1;
+            int desktopImageMaxWidth = desktopImage.Width - 1;
+            int desktopImageMaxHeight = desktopImage.Height - 1;
+
+
+            //get corners and center of user image to develop 'fingerprint'
+            List<ImageRecognitionFingerPrint> userImageFingerprint = new List<ImageRecognitionFingerPrint>();
+            //top left
+            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = 0, yLocation = 0 });
+            //top right
+            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = userImageMaxWidth, yLocation = 0 });
+            //bottom left
+            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = 0, yLocation = userImageMaxHeight });
+            //bottomright
+            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = userImageMaxWidth, yLocation = userImageMaxHeight });
+            //center
+            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = (userImageMaxWidth / 2), yLocation = (userImageMaxHeight / 2) });
+
+
+
+            //find source colors of each 'fingerprint'
+            foreach (var fingerPrint in userImageFingerprint)
+            {
+                fingerPrint.PixelColor = userImage.GetPixel(fingerPrint.xLocation, fingerPrint.yLocation);
+            }
+
+            bool imageFound = false;
+
+            //for each row on the screen
+            for (int rowPixel = 0; rowPixel < desktopImageMaxWidth; rowPixel++)
+            {
+
+                //for each column on screen
+                for (int columnPixel = 0; columnPixel < desktopImageMaxHeight; columnPixel++)
+                {
+
+                    try
+                    {
+
+
+
+
+                    //get the current pixel from current row and column
+                    // userImageFingerPrint.First() for now will always be from top left (0,0)
+                    var currentPixel = desktopImage.GetPixel(rowPixel + userImageFingerprint.First().xLocation, columnPixel + userImageFingerprint.First().yLocation);
+
+                    //compare to see if desktop pixel matches top left pixel from user image
+                    if (currentPixel == userImageFingerprint.First().PixelColor)
+                    {
+
+                            //look through each item in the fingerprint to see if offset pixel colors match
+                            int matchCount = 0;
+                        for (int item = 0; item < userImageFingerprint.Count; item++)
+                        {
+                            //find pixel color from offset X,Y relative to current position of row and column
+                            currentPixel = desktopImage.GetPixel(rowPixel + userImageFingerprint[item].xLocation, columnPixel + userImageFingerprint[item].yLocation);
+
+                            //if color matches
+                            if (userImageFingerprint[item].PixelColor == currentPixel)
+                            {
+                                    matchCount++;
+
+                                //draw on output to demonstrate finding
+                                if (testMode)
+                                    screenShotUpdate.DrawRectangle(Pens.Blue, rowPixel + userImageFingerprint[item].xLocation, columnPixel + userImageFingerprint[item].yLocation, 5, 5);
+                            }
+                            else
+                            {
+                                //mismatch in the pixel series, not a series of matching coordinate
+                                //?add threshold %?
+                                imageFound = false;
+
+                                //draw on output to demonstrate finding
+                                if (testMode)
+                                    screenShotUpdate.DrawRectangle(Pens.OrangeRed, rowPixel + userImageFingerprint[item].xLocation, columnPixel + userImageFingerprint[item].yLocation, 5, 5);
+                            }
+
+                        }
+
+                        if (matchCount == userImageFingerprint.Count())
+                        {
+                                imageFound = true;
+
+                                var topLeftX = rowPixel + userImageFingerprint.First().xLocation;
+                                var topLeftY = columnPixel + userImageFingerprint.First().yLocation;
+
+                                if (testMode)
+                                {
+                                    //draw on output to demonstrate finding
+                                    var Rectangle = new Rectangle(topLeftX, topLeftY, userImageMaxWidth, userImageMaxHeight);
+                                    Brush brush = new SolidBrush(Color.ForestGreen);
+                                    screenShotUpdate.FillRectangle(brush, Rectangle);
+                                }
+
+                                //move mouse to position
+                                var mouseMove = new SendMouseMoveCommand();
+                                mouseMove.v_XMousePosition = topLeftX + (v_xOffsetAdjustment);
+                                mouseMove.v_YMousePosition = topLeftY + (v_xOffsetAdjustment);
+                                mouseMove.v_MouseClick = v_MouseClick;
+
+                                mouseMove.RunCommand(sender);
+
+
+                        }
+
+
+
+                    }
+
+
+                        if (imageFound)
+                            break;
+
+                    }
+                    catch (Exception ex)
+                    {
+                     //continue
+                    }
+                }
+
+
+                if (imageFound)
+                    break;
+            }
+
+            //write output
+
+
+            if (!imageFound)
+            {
+                throw new Exception("Image was not found on screen");
+            }
+
+
+
+
+            if (testMode)
+            {
+                //screenShotUpdate.FillRectangle(Brushes.White, 5, 20, 275, 105);
+                //screenShotUpdate.DrawString("Blue = Matching Point", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 20);
+                //screenShotUpdate.DrawString("OrangeRed = Mismatched Point", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 60);
+                //screenShotUpdate.DrawString("Green Rectangle = Match Area", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 100);
+
+                UI.Forms.Supplement_Forms.frmImageCapture captureOutput = new UI.Forms.Supplement_Forms.frmImageCapture();
+                captureOutput.pictureBox1.Image = desktopOutput;
+                captureOutput.Show();
+                captureOutput.TopMost = true;
+                //captureOutput.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            }
+
+            graphics.Dispose();
+            userImage.Dispose();
+            desktopImage.Dispose();
+            screenShotUpdate.Dispose();
+
+
+        }
+
+        public override string GetDisplayValue()
+        {
+            return base.GetDisplayValue() + " [Find On Screen]";
+        }
+    }
+
+
+
     #endregion OCR and Image Commands
 
     #region HTTP Commands
@@ -2788,6 +3023,16 @@ namespace sharpRPA.Core.AutomationCommands
         #endregion
     }
 
+
+public class ImageRecognitionFingerPrint
+{
+    public int pixelID { get; set; }
+    public Color PixelColor { get; set; }
+    public int xLocation { get; set; }
+    public int yLocation { get; set; }
+    bool matchFound { get; set; }
+
+}
 
 
 
