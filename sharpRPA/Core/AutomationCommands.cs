@@ -2779,7 +2779,7 @@ namespace sharpRPA.Core.AutomationCommands
             List<ImageRecognitionFingerPrint> uniqueFingerprint = new List<ImageRecognitionFingerPrint>();
             Color lastcolor = Color.Transparent;
 
-
+            //create fingerprint
             var pixelDensity = (userImage.Width * userImage.Height);
 
             int iteration = 0;
@@ -2800,8 +2800,7 @@ namespace sharpRPA.Core.AutomationCommands
             }
 
 
-            sampleOut.Save(@"D:\Dropbox\Environment Folders\Desktop\OUTOUTOUT" + DateTime.Now.ToString("HHmmss") + ".PNG");
-            //System.Diagnostics.Process.Start(@sampleOut.);
+
 
             //begin search
 
