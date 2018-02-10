@@ -84,6 +84,7 @@ namespace sharpRPA.Core.AutomationCommands
     [XmlInclude(typeof(HTTPRequestCommand))]
     [XmlInclude(typeof(HTTPQueryResultCommand))]
     [XmlInclude(typeof(ImageRecognitionCommand))]
+    [XmlInclude(typeof(SendMouseClickCommand))]
     [Serializable]
     public abstract class ScriptCommand
     {
@@ -860,6 +861,7 @@ namespace sharpRPA.Core.AutomationCommands
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Click")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Click")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Double Left Click")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Set Text")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Get Text")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Get Attribute")]
@@ -966,7 +968,7 @@ namespace sharpRPA.Core.AutomationCommands
                     case "Left Click":
                     case "Right Click":
                     case "Middle Click":
-
+                    case "Double Left Click":
                         int userXAdjust = Convert.ToInt32((from rw in v_WebActionParameterTable.AsEnumerable()
                                                            where rw.Field<string>("Parameter Name") == "X Adjustment"
                                                            select rw.Field<string>("Parameter Value")).FirstOrDefault());
@@ -1788,6 +1790,7 @@ namespace sharpRPA.Core.AutomationCommands
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Click")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Click")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Double Left Click")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Down")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Down")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Down")]
@@ -1815,6 +1818,44 @@ namespace sharpRPA.Core.AutomationCommands
         }
     }
     [Serializable]
+    [Attributes.ClassAttributes.Group("Input Commands")]
+    [Attributes.ClassAttributes.Description("Use this command to simulate mouse click on coordinates.")]
+    [Attributes.ClassAttributes.ImplementationDescription("This command implements 'SetCursorPos' function from user32.dll to achieve automation.")]
+    public class SendMouseClickCommand : ScriptCommand
+    {
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Please indicate mouse click type")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Click")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Down")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Down")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Down")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Up")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Up")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Up")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Double Left Click")]
+        public string v_MouseClick { get; set; }
+
+        public SendMouseClickCommand()
+        {
+            this.CommandName = "SendMouseClickCommand";
+            this.SelectionName = "Send Mouse Click";
+            this.CommandEnabled = true;
+        }
+
+        public override void RunCommand(object sender)
+        {
+            var mousePosition = System.Windows.Forms.Cursor.Position;
+            User32Functions.SendMouseClick(v_MouseClick, mousePosition.X, mousePosition.Y);
+        }
+
+        public override string GetDisplayValue()
+        {
+            return base.GetDisplayValue() + "[Click Type: " + v_MouseClick + "]";
+        }
+    }
+        [Serializable]
     [Attributes.ClassAttributes.Group("Input Commands")]
     [Attributes.ClassAttributes.Description("This command clicks an item in a Thick Application window.")]
     [Attributes.ClassAttributes.ImplementationDescription("This command implements 'Windows UI Automation' to find elements and invokes a SendMouseMove Command to click and achieve automation")]
@@ -2726,6 +2767,7 @@ namespace sharpRPA.Core.AutomationCommands
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Left Up")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Middle Up")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Up")]
+        [Attributes.PropertyAttributes.PropertyUISelectionOption("Double Left Click")]
         public string v_MouseClick { get; set; }
         public ImageRecognitionCommand()
         {
