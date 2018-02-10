@@ -1,6 +1,6 @@
 
 # sharpRPA
-# Please note this project is currently in an Alpha (preview) state and subject to change.
+# Please note this project is currently in a beta state and subject to change.
 sharpRPA is a Free, Open-Source, and Easy-To-Use RPA (Robotic Process Automation) solution built on the .NET Framework in C#.  sharpRPA allows you to automate straight-forward and repetative actions with ease - Don't Write Code, Build Functionality!
 
 # Start Screen
