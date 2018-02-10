@@ -2768,37 +2768,59 @@ namespace sharpRPA.Core.AutomationCommands
             int desktopImageMaxWidth = desktopImage.Width - 1;
             int desktopImageMaxHeight = desktopImage.Height - 1;
 
+            //newfingerprinttechnique
 
-            //get corners and center of user image to develop 'fingerprint'
-            List<ImageRecognitionFingerPrint> userImageFingerprint = new List<ImageRecognitionFingerPrint>();
-            //top left
-            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = 0, yLocation = 0 });
-            //top right
-            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = userImageMaxWidth, yLocation = 0 });
-            //bottom left
-            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = 0, yLocation = userImageMaxHeight });
-            //bottomright
-            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = userImageMaxWidth, yLocation = userImageMaxHeight });
-            //center
-            userImageFingerprint.Add(new ImageRecognitionFingerPrint() { xLocation = (userImageMaxWidth / 2), yLocation = (userImageMaxHeight / 2) });
+            //create desktopOutput file
+            Bitmap sampleOut = new Bitmap(userImage);
+
+            //get graphics for drawing on output file
+            Graphics sampleUpdate = Graphics.FromImage(sampleOut);
+
+            List<ImageRecognitionFingerPrint> uniqueFingerprint = new List<ImageRecognitionFingerPrint>();
+            Color lastcolor = Color.Transparent;
 
 
+            var pixelDensity = (userImage.Width * userImage.Height);
 
-            //find source colors of each 'fingerprint'
-            foreach (var fingerPrint in userImageFingerprint)
+            int iteration = 0;
+            Random random = new Random();
+            while ((uniqueFingerprint.Count() < 10) && (iteration < pixelDensity))
             {
-                fingerPrint.PixelColor = userImage.GetPixel(fingerPrint.xLocation, fingerPrint.yLocation);
+                int x = random.Next(userImage.Width);
+                int y = random.Next(userImage.Height);
+                Color color = sampleOut.GetPixel(x, y);
+
+                if ((lastcolor != color) && (!uniqueFingerprint.Any(f => f.xLocation == x && f.yLocation == y)))
+                {
+                    uniqueFingerprint.Add(new ImageRecognitionFingerPrint() { PixelColor = color, xLocation = x, yLocation = y });
+                    sampleUpdate.DrawRectangle(Pens.Yellow, x, y, 1, 1);
+                }
+
+                iteration++;
             }
 
-            bool imageFound = false;
 
+            sampleOut.Save(@"D:\Dropbox\Environment Folders\Desktop\OUTOUTOUT" + DateTime.Now.ToString("HHmmss") + ".PNG");
+            //System.Diagnostics.Process.Start(@sampleOut.);
+
+            //begin search
+
+            bool imageFound = false;
             //for each row on the screen
-            for (int rowPixel = 0; rowPixel < desktopImageMaxWidth; rowPixel++)
+            for (int rowPixel = 0; rowPixel < desktopImage.Height - 1; rowPixel++)
             {
 
+                if (rowPixel + uniqueFingerprint.First().yLocation >= desktopImage.Height)
+                    continue;
+
+
                 //for each column on screen
-                for (int columnPixel = 0; columnPixel < desktopImageMaxHeight; columnPixel++)
+                for (int columnPixel = 0; columnPixel < desktopImage.Width - 1; columnPixel++)
                 {
+
+
+                    if (columnPixel + uniqueFingerprint.First().xLocation >= desktopImage.Width)
+                        continue;
 
                     try
                     {
@@ -2806,49 +2828,49 @@ namespace sharpRPA.Core.AutomationCommands
 
 
 
-                    //get the current pixel from current row and column
-                    // userImageFingerPrint.First() for now will always be from top left (0,0)
-                    var currentPixel = desktopImage.GetPixel(rowPixel + userImageFingerprint.First().xLocation, columnPixel + userImageFingerprint.First().yLocation);
+                        //get the current pixel from current row and column
+                        // userImageFingerPrint.First() for now will always be from top left (0,0)
+                        var currentPixel = desktopImage.GetPixel(columnPixel + uniqueFingerprint.First().xLocation, rowPixel + uniqueFingerprint.First().yLocation);
 
-                    //compare to see if desktop pixel matches top left pixel from user image
-                    if (currentPixel == userImageFingerprint.First().PixelColor)
-                    {
+                        //compare to see if desktop pixel matches top left pixel from user image
+                        if (currentPixel == uniqueFingerprint.First().PixelColor)
+                        {
 
                             //look through each item in the fingerprint to see if offset pixel colors match
                             int matchCount = 0;
-                        for (int item = 0; item < userImageFingerprint.Count; item++)
-                        {
-                            //find pixel color from offset X,Y relative to current position of row and column
-                            currentPixel = desktopImage.GetPixel(rowPixel + userImageFingerprint[item].xLocation, columnPixel + userImageFingerprint[item].yLocation);
-
-                            //if color matches
-                            if (userImageFingerprint[item].PixelColor == currentPixel)
+                            for (int item = 0; item < uniqueFingerprint.Count; item++)
                             {
+                                //find pixel color from offset X,Y relative to current position of row and column
+                                currentPixel = desktopImage.GetPixel(columnPixel + uniqueFingerprint[item].xLocation, rowPixel + uniqueFingerprint[item].yLocation);
+
+                                //if color matches
+                                if (uniqueFingerprint[item].PixelColor == currentPixel)
+                                {
                                     matchCount++;
 
-                                //draw on output to demonstrate finding
-                                if (testMode)
-                                    screenShotUpdate.DrawRectangle(Pens.Blue, rowPixel + userImageFingerprint[item].xLocation, columnPixel + userImageFingerprint[item].yLocation, 5, 5);
+                                    //draw on output to demonstrate finding
+                                    if (testMode)
+                                        screenShotUpdate.DrawRectangle(Pens.Blue, columnPixel + uniqueFingerprint[item].xLocation, rowPixel + uniqueFingerprint[item].yLocation, 5, 5);
+                                }
+                                else
+                                {
+                                    //mismatch in the pixel series, not a series of matching coordinate
+                                    //?add threshold %?
+                                    imageFound = false;
+
+                                    //draw on output to demonstrate finding
+                                    if (testMode)
+                                        screenShotUpdate.DrawRectangle(Pens.OrangeRed, columnPixel + uniqueFingerprint[item].xLocation, rowPixel + uniqueFingerprint[item].yLocation, 5, 5);
+                                }
+
                             }
-                            else
+
+                            if (matchCount == uniqueFingerprint.Count())
                             {
-                                //mismatch in the pixel series, not a series of matching coordinate
-                                //?add threshold %?
-                                imageFound = false;
-
-                                //draw on output to demonstrate finding
-                                if (testMode)
-                                    screenShotUpdate.DrawRectangle(Pens.OrangeRed, rowPixel + userImageFingerprint[item].xLocation, columnPixel + userImageFingerprint[item].yLocation, 5, 5);
-                            }
-
-                        }
-
-                        if (matchCount == userImageFingerprint.Count())
-                        {
                                 imageFound = true;
 
-                                var topLeftX = rowPixel + userImageFingerprint.First().xLocation;
-                                var topLeftY = columnPixel + userImageFingerprint.First().yLocation;
+                                var topLeftX = columnPixel;
+                                var topLeftY = rowPixel;
 
                                 if (testMode)
                                 {
@@ -2867,11 +2889,11 @@ namespace sharpRPA.Core.AutomationCommands
                                 mouseMove.RunCommand(sender);
 
 
+                            }
+
+
+
                         }
-
-
-
-                    }
 
 
                         if (imageFound)
@@ -2880,7 +2902,7 @@ namespace sharpRPA.Core.AutomationCommands
                     }
                     catch (Exception ex)
                     {
-                     //continue
+                        //continue
                     }
                 }
 
@@ -2889,13 +2911,14 @@ namespace sharpRPA.Core.AutomationCommands
                     break;
             }
 
-            //write output
 
 
-            if (!imageFound)
-            {
-                throw new Exception("Image was not found on screen");
-            }
+
+
+
+
+
+
 
 
 
@@ -2904,11 +2927,14 @@ namespace sharpRPA.Core.AutomationCommands
             {
                 //screenShotUpdate.FillRectangle(Brushes.White, 5, 20, 275, 105);
                 //screenShotUpdate.DrawString("Blue = Matching Point", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 20);
-                //screenShotUpdate.DrawString("OrangeRed = Mismatched Point", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 60);
-                //screenShotUpdate.DrawString("Green Rectangle = Match Area", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 100);
+               // screenShotUpdate.DrawString("OrangeRed = Mismatched Point", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 60);
+               // screenShotUpdate.DrawString("Green Rectangle = Match Area", new Font("Arial", 12, FontStyle.Bold), Brushes.SteelBlue, 5, 100);
+
+                //screenShotUpdate.DrawImage(sampleOut, desktopOutput.Width - sampleOut.Width, 0);
 
                 UI.Forms.Supplement_Forms.frmImageCapture captureOutput = new UI.Forms.Supplement_Forms.frmImageCapture();
-                captureOutput.pictureBox1.Image = desktopOutput;
+                captureOutput.pbTaggedImage.Image = sampleOut;
+                captureOutput.pbSearchResult.Image = desktopOutput;
                 captureOutput.Show();
                 captureOutput.TopMost = true;
                 //captureOutput.WindowState = System.Windows.Forms.FormWindowState.Maximized;

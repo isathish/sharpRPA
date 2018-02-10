@@ -31,12 +31,17 @@ namespace sharpRPA.UI.Forms.Supplement_Forms
         private void frmImageCapture_Load(object sender, EventArgs e)
         {
 
-            if (pictureBox1.Image != null)
+            if (pbTaggedImage.Image != null)
             {
-                uiAccept.Hide();
-                uiClose.Hide();
+                pnlMouseContainer.Hide();
                 return;
             }
+            else
+            {
+                tabTestMode.Hide();
+            }
+
+
 
 
             this.FormBorderStyle = FormBorderStyle.None;
