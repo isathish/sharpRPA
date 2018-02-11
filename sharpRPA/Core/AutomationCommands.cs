@@ -2769,6 +2769,9 @@ namespace sharpRPA.Core.AutomationCommands
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Right Up")]
         [Attributes.PropertyAttributes.PropertyUISelectionOption("Double Left Click")]
         public string v_MouseClick { get; set; }
+        [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyDescription("Timeout (seconds, 0 for unlimited search time)")]
+        public double v_TimeoutSeconds { get; set; }
         public ImageRecognitionCommand()
         {
             this.CommandName = "ImageRecognitionCommand";
@@ -2777,6 +2780,7 @@ namespace sharpRPA.Core.AutomationCommands
 
             v_xOffsetAdjustment = 0;
             v_YOffsetAdjustment = 0;
+            v_TimeoutSeconds = 30;
         }
         public override void RunCommand(object sender)
         {
@@ -2845,6 +2849,8 @@ namespace sharpRPA.Core.AutomationCommands
 
 
             //begin search
+            DateTime timeoutDue = DateTime.Now.AddSeconds(v_TimeoutSeconds);
+
 
             bool imageFound = false;
             //for each row on the screen
@@ -2859,9 +2865,15 @@ namespace sharpRPA.Core.AutomationCommands
                 for (int columnPixel = 0; columnPixel < desktopImage.Width - 1; columnPixel++)
                 {
 
+                    if ((v_TimeoutSeconds > 0) && (DateTime.Now > timeoutDue))
+                    {
+                        throw new Exception("Image recognition command ran out of time searching for image");
+                    }
 
                     if (columnPixel + uniqueFingerprint.First().xLocation >= desktopImage.Width)
                         continue;
+
+
 
                     try
                     {
