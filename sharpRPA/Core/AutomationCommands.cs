@@ -2986,6 +2986,11 @@ namespace sharpRPA.Core.AutomationCommands
             desktopImage.Dispose();
             screenShotUpdate.Dispose();
 
+            if (!imageFound)
+            {
+                throw new Exception("Specified image was not found in window!");
+            }
+
 
         }
 
