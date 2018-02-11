@@ -295,6 +295,7 @@ namespace sharpRPA.UI
             uiImages.Add("WebBrowserElementCommand", sharpRPA.Properties.Resources.element);
             uiImages.Add("SendKeysCommand", sharpRPA.Properties.Resources.computer);
             uiImages.Add("SendMouseMoveCommand", sharpRPA.Properties.Resources.computer);
+            uiImages.Add("SendMouseClickCommand", sharpRPA.Properties.Resources.computer);
             uiImages.Add("SetWindowStateCommand", sharpRPA.Properties.Resources.windows);
             uiImages.Add("WebBrowserFindBrowserCommand", sharpRPA.Properties.Resources.createbrowser16);
             uiImages.Add("BeginLoopCommand", sharpRPA.Properties.Resources.loop);
