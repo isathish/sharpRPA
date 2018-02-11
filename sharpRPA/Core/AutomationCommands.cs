@@ -1852,7 +1852,7 @@ namespace sharpRPA.Core.AutomationCommands
 
         public override string GetDisplayValue()
         {
-            return base.GetDisplayValue() + "[Click Type: " + v_MouseClick + "]";
+            return base.GetDisplayValue() + " [Click Type: " + v_MouseClick + "]";
         }
     }
         [Serializable]
