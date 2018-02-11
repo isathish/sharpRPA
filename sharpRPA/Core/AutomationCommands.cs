@@ -2772,7 +2772,7 @@ namespace sharpRPA.Core.AutomationCommands
         public ImageRecognitionCommand()
         {
             this.CommandName = "ImageRecognitionCommand";
-            this.SelectionName = "Image - Image Recognition";
+            this.SelectionName = "Image Recognition";
             this.CommandEnabled = true;
 
             v_xOffsetAdjustment = 0;
