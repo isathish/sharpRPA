@@ -43,10 +43,12 @@ namespace sharpRPA.Core.Script
             return newExecutionCommand;
         }
 
-        public static Script SerializeScript(string scriptFilePath, ListView.ListViewItemCollection scriptCommands, List<ScriptVariable> scriptVariables)
+        public static Script SerializeScript(ListView.ListViewItemCollection scriptCommands, List<ScriptVariable> scriptVariables, string scriptFilePath = "")
         {
             //create fileStream
-            var fileStream = System.IO.File.Create(scriptFilePath);
+
+
+
 
             var script = new Core.Script.Script();
 
@@ -114,12 +116,17 @@ namespace sharpRPA.Core.Script
             settings.Indent = true;
 
             //write to file
-            using (XmlWriter writer = XmlWriter.Create(fileStream, settings))
+            if (scriptFilePath != "")
             {
-                serializer.Serialize(writer, script);
+                var fileStream = System.IO.File.Create(scriptFilePath);
+                using (XmlWriter writer = XmlWriter.Create(fileStream, settings))
+                {
+                    serializer.Serialize(writer, script);
+                }
+
+                fileStream.Close();
             }
 
-            fileStream.Close();
 
             return script;
         }
