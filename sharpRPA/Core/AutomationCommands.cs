@@ -2451,6 +2451,16 @@ namespace sharpRPA.Core.AutomationCommands
             {
                 splitString = stringVariable.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList();
             }
+            else if (v_splitCharacter == "[chars]")
+            {
+                splitString = new List<string>();
+                var chars = stringVariable.ToCharArray();
+                foreach (var c in chars)
+                {
+                    splitString.Add(c.ToString());
+                }
+
+            }
             else
             {
                 splitString = stringVariable.Split(new string[] { v_splitCharacter }, StringSplitOptions.None).ToList();
