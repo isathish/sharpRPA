@@ -2244,12 +2244,12 @@ namespace sharpRPA.Core.AutomationCommands
             var sendingInstance = (UI.Forms.frmScriptEngine)sender;
             if (sendingInstance.appInstances.TryGetValue(v_InstanceName, out excelObject))
             {
-                v_ExcelCellAddress = v_ExcelCellAddress.ConvertToUserVariable(sender);
-                v_TextToSet = v_TextToSet.ConvertToUserVariable(sender);
+              var targetAddress = v_ExcelCellAddress.ConvertToUserVariable(sender);
+              var targetText = v_TextToSet.ConvertToUserVariable(sender);
 
                 Microsoft.Office.Interop.Excel.Application excelInstance = (Microsoft.Office.Interop.Excel.Application)excelObject;
                 Microsoft.Office.Interop.Excel.Worksheet excelSheet = excelInstance.ActiveSheet;
-                excelSheet.Range[v_ExcelCellAddress].Value = v_TextToSet;
+                excelSheet.Range[targetAddress].Value = targetAddress;
             }
         }
         public override string GetDisplayValue()
@@ -2287,11 +2287,12 @@ namespace sharpRPA.Core.AutomationCommands
             var sendingInstance = (UI.Forms.frmScriptEngine)sender;
             if (sendingInstance.appInstances.TryGetValue(v_InstanceName, out excelObject))
             {
-                v_ExcelCellAddress = v_ExcelCellAddress.ConvertToUserVariable(sender);
+
+                var targetAddress = v_ExcelCellAddress.ConvertToUserVariable(sender);
 
                 Microsoft.Office.Interop.Excel.Application excelInstance = (Microsoft.Office.Interop.Excel.Application)excelObject;
                 Microsoft.Office.Interop.Excel.Worksheet excelSheet = excelInstance.ActiveSheet;
-                var cellValue = (string)excelSheet.Range[v_ExcelCellAddress].Value;
+                var cellValue = (string)excelSheet.Range[targetAddress].Text;
                 cellValue.StoreInUserVariable(sender, v_userVariableName);
             }
         }
