@@ -960,9 +960,20 @@ namespace sharpRPA.UI.Forms
                 //grab the referenced input assigned to the 'insert variable' button instance
                 CustomControls.CommandItemControl inputBox = (CustomControls.CommandItemControl)sender;
                 //currently variable insertion is only available for simply textboxes
-                TextBox targetTextbox = (TextBox)inputBox.Tag;
-                //concat variable name with brackets [vVariable] as engine searches for the same
-                targetTextbox.Text = targetTextbox.Text + string.Concat("[", newVariableSelector.lstVariables.SelectedItem.ToString(), "]");
+
+                if (inputBox.Tag is TextBox)
+                {
+                    TextBox targetTextbox = (TextBox)inputBox.Tag;
+                    //concat variable name with brackets [vVariable] as engine searches for the same
+                    targetTextbox.Text = targetTextbox.Text + string.Concat("[", newVariableSelector.lstVariables.SelectedItem.ToString(), "]");
+                }
+                else if(inputBox.Tag is ComboBox)
+                {
+                    ComboBox targetCombobox = (ComboBox)inputBox.Tag;
+                    //concat variable name with brackets [vVariable] as engine searches for the same
+                    targetCombobox.Text = targetCombobox.Text + string.Concat("[", newVariableSelector.lstVariables.SelectedItem.ToString(), "]");
+                }
+
             }
         }
         private void ShowFileSelector(object sender, EventArgs e)

@@ -1866,6 +1866,7 @@ namespace sharpRPA.Core.AutomationCommands
         public string v_AutomationWindowName { get; set; }
         [XmlAttribute]
         [Attributes.PropertyAttributes.PropertyDescription("Please select the Appropriate Item")]
+        [Attributes.PropertyAttributes.PropertyUIHelper(Attributes.PropertyAttributes.PropertyUIHelper.UIAdditionalHelperType.ShowVariableHelper)]
         public string v_AutomationHandleName { get; set; }
         [XmlAttribute]
         [Attributes.PropertyAttributes.PropertyDescription("Please indicate mouse click type if required")]
@@ -1890,7 +1891,8 @@ namespace sharpRPA.Core.AutomationCommands
                 throw new Exception("Window not found");
             }
 
-            var requiredItem = searchItem.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, v_AutomationHandleName));
+            var requiredHandleName = v_AutomationHandleName.ConvertToUserVariable(sender);
+            var requiredItem = searchItem.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, requiredHandleName));
 
             var newActivateWindow = new ActivateWindowCommand();
             newActivateWindow.v_WindowName = v_AutomationWindowName;
@@ -2433,13 +2435,13 @@ namespace sharpRPA.Core.AutomationCommands
         [Attributes.PropertyAttributes.PropertyDescription("Input Delimiter")]
         public string v_splitCharacter { get; set; }
         [XmlAttribute]
+        [Attributes.PropertyAttributes.PropertyUIHelper(Attributes.PropertyAttributes.PropertyUIHelper.UIAdditionalHelperType.ShowVariableHelper)]
         [Attributes.PropertyAttributes.PropertyDescription("Please select the list variable which will contain the results")]
         public string v_applyConvertToUserVariableName { get; set; }
         public StringSplitCommand()
         {
             this.CommandName = "StringSplitCommand";
             this.SelectionName = "Split";
-            this.v_applyConvertToUserVariableName = "default";
             this.CommandEnabled = true;
         }
         public override void RunCommand(object sender)
@@ -2467,9 +2469,9 @@ namespace sharpRPA.Core.AutomationCommands
             }
 
             var sendingInstance = (UI.Forms.frmScriptEngine)sender;
-
+            var v_receivingVariable = v_applyConvertToUserVariableName.Replace("[", "").Replace("]", "");
             //get complex variable from engine and assign
-            var requiredComplexVariable = sendingInstance.variableList.Where(x => x.variableName == v_applyConvertToUserVariableName).FirstOrDefault();
+            var requiredComplexVariable = sendingInstance.variableList.Where(x => x.variableName == v_receivingVariable).FirstOrDefault();
             requiredComplexVariable.variableValue = splitString;
         }
         public override string GetDisplayValue()
